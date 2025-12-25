@@ -1,0 +1,627 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+
+:root {
+    --bg-color: #0f172a;
+    --panel-bg: rgba(30, 41, 59, 0.7);
+    --accent-color: #38bdf8;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --danger-color: #ef4444;
+    --success-color: #22c55e;
+    --gold-color: #fbbf24;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #020617;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-primary);
+    overflow: hidden;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+canvas {
+    display: block;
+    background-color: #020617;
+    cursor: crosshair;
+}
+
+
+#top-ui {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 15px;
+    pointer-events: none;
+    z-index: 100;
+}
+
+/* Audio Engine (Synthesized) */
+/* Settings Button */
+#settings-btn {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+}
+
+#settings-btn:hover {
+    transform: scale(1.1) rotate(90deg);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+    background: rgba(15, 23, 42, 0.8);
+}
+
+
+#wave-container {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 10px 30px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    min-width: 160px;
+}
+
+.wave-main {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+#wave-display {
+    color: var(--accent-color);
+}
+
+#next-wave-timer {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-top: 5px;
+    letter-spacing: 1px;
+}
+
+#ui-panel {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    height: 140px;
+    background: transparent;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    /* Center everything in the panel */
+    gap: 20px;
+    pointer-events: none;
+}
+
+#ui-panel>div {
+    pointer-events: auto;
+}
+
+#health-container {
+    background: var(--panel-bg);
+    border-radius: 15px;
+    border: 2px solid var(--danger-color);
+    font-size: 1.2rem;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 140px;
+    height: 100px;
+}
+
+#health-display {
+    font-size: 1.8rem;
+    color: var(--danger-color);
+    display: block;
+}
+
+#upgrades-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    /* Increased from 8px to avoid overlap */
+    background: var(--panel-bg);
+    padding: 10px 20px 15px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.container-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+#upgrades {
+    display: flex;
+    gap: 15px;
+}
+
+.upgrade-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    padding: 8px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 110px;
+    position: relative;
+    /* For key hint positioning */
+}
+
+.key-hint {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--accent-color);
+    color: var(--bg-color);
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+.upgrade-btn:hover:not(:disabled) {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: var(--accent-color);
+    transform: translateY(-3px);
+}
+
+.upgrade-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.btn-top {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.btn-stat {
+    font-size: 0.7rem;
+    color: var(--accent-color);
+}
+
+.btn-cost {
+    font-size: 0.85rem;
+    color: var(--gold-color);
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.btn-level {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+}
+
+#money-container {
+    background: var(--panel-bg);
+    border-radius: 15px;
+    border: 2px solid var(--gold-color);
+    font-size: 1rem;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 140px;
+    height: 100px;
+}
+
+#money-display {
+    font-size: 1.6rem;
+    color: var(--gold-color);
+}
+
+#speed-container {
+    position: absolute;
+    /* Keep speed on the far right without affecting center */
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Shop UI */
+#shop-icon {
+    position: absolute;
+    bottom: 25px;
+    left: 25px;
+    background: var(--panel-bg);
+    border: 2px solid #a855f7;
+    padding: 10px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+    pointer-events: auto;
+}
+
+#shop-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+}
+
+#shop-icon .icon {
+    font-size: 1.2rem;
+}
+
+#shop-icon .label {
+    font-weight: 800;
+    color: #a855f7;
+    letter-spacing: 1px;
+}
+
+#game-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+
+#shop-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+#shop-modal.hidden {
+    display: none;
+}
+
+.shop-content {
+    background: #1e293b;
+    border: 2px solid #334155;
+    padding: 30px;
+    border-radius: 24px;
+    width: 900px;
+    max-width: 95vw;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.shop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 15px;
+}
+
+.shop-header h2 {
+    color: #a855f7;
+    letter-spacing: 2px;
+}
+
+.boss-tokens {
+    font-weight: 700;
+    color: #f8fafc;
+    font-size: 1.1rem;
+}
+
+.shop-upgrades {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.perm-upgrade {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.perm-upgrade:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-5px);
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.p-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.p-label {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.p-level {
+    color: var(--accent-color);
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.p-bonus {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    width: 100%;
+}
+
+.p-upgrade-btn {
+    background: #a855f7;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.p-upgrade-btn:hover:not(:disabled) {
+    background: #c084fc;
+    transform: translateY(-2px);
+}
+
+.p-upgrade-btn:disabled {
+    background: #334155;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#close-shop {
+    background: #334155;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 800;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+
+#close-shop:hover {
+    background: #475569;
+}
+
+#speed-controls {
+    display: flex;
+    gap: 6px;
+    background: var(--panel-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.speed-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.speed-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.speed-btn.active {
+    background: var(--accent-color);
+    color: var(--bg-color);
+    border-color: var(--accent-color);
+}
+
+.speed-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 4px 15px;
+    border-radius: 6px;
+    border-radius: 6px;
+}
+
+/* Settings Modal */
+#settings-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+#settings-modal.hidden {
+    display: none;
+}
+
+.settings-content {
+    background: #1e293b;
+    border: 2px solid #334155;
+    padding: 30px;
+    border-radius: 20px;
+    width: 400px;
+    max-width: 90vw;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+}
+
+.settings-header h2 {
+    color: var(--accent-color);
+    letter-spacing: 2px;
+}
+
+.settings-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.setting-label {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.setting-toggle {
+    background: #334155;
+    color: #94a3b8;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 60px;
+}
+
+.setting-toggle.active {
+    background: var(--success-color);
+    color: white;
+}
+
+#close-settings {
+    background: #334155;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 800;
+    transition: background 0.2s;
+    margin-top: 10px;
+}
+
+#close-settings:hover {
+    background: #475569;
+}
+
+#reset-perms-btn {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    margin-top: 10px;
+}
+
+#reset-perms-btn:hover {
+    background: var(--danger-color);
+    color: white;
+}

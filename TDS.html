@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Square Defense TDS</title>
+    <link rel="stylesheet" href="TDS.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="top-ui">
+            <div id="settings-control">
+                <button id="settings-btn" title="Settings">
+                    <span class="icon">⚙️</span>
+                </button>
+            </div>
+        </div>
+        <div id="wave-container">
+            <div class="wave-main">WAVE <span id="wave-display">1</span></div>
+            <div id="next-wave-timer"></div>
+        </div>
+        <div id="ui-panel">
+            <div id="health-container">
+                LIVES <span id="health-display">100</span>
+            </div>
+
+            <div id="upgrades-container">
+                <div class="container-label">UPGRADES</div>
+                <div id="upgrades">
+                    <button class="upgrade-btn" id="upgrade-damage">
+                        <div class="btn-top">
+                            <span class="btn-label">Damage</span>
+                            <span class="btn-stat">(<span id="stat-damage">10</span>)</span>
+                        </div>
+                        <span class="btn-cost" id="cost-damage">5$</span>
+                        <span class="btn-level" id="level-damage">Lvl 1</span>
+                        <span class="key-hint">[+]</span>
+                    </button>
+                    <button class="upgrade-btn" id="upgrade-range">
+                        <div class="btn-top">
+                            <span class="btn-label">Range</span>
+                            <span class="btn-stat">(<span id="stat-range">200</span>)</span>
+                        </div>
+                        <span class="btn-cost" id="cost-range">10$</span>
+                        <span class="btn-level" id="level-range">Lvl 1</span>
+                        <span class="key-hint">[ě]</span>
+                    </button>
+                    <button class="upgrade-btn" id="upgrade-speed">
+                        <div class="btn-top">
+                            <span class="btn-label">Attack Speed</span>
+                            <span class="btn-stat">(<span id="stat-speed">1.0</span>/s)</span>
+                        </div>
+                        <span class="btn-cost" id="cost-speed">15$</span>
+                        <span class="btn-level" id="level-speed">Lvl 1</span>
+                        <span class="key-hint">[š]</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="money-container">
+                MONEY <span id="money-display">50</span>$
+            </div>
+
+            <div id="speed-container">
+                <div id="speed-controls">
+                    <button class="speed-btn active" data-speed="1">1x</button>
+                    <button class="speed-btn" data-speed="1.5">1.5x</button>
+                    <button class="speed-btn" data-speed="2">2x</button>
+                    <button class="speed-btn" data-speed="3">3x</button>
+                    <button class="speed-btn" data-speed="5">5x</button>
+                </div>
+                <div class="speed-label">SPEED UP</div>
+            </div>
+        </div>
+
+        <div id="shop-icon" title="Permanent Upgrades">
+            <span class="icon">💎</span>
+            <span class="label">SHOP</span>
+        </div>
+
+        <div id="shop-modal" class="hidden">
+            <div class="shop-content">
+                <div class="shop-header">
+                    <h2>PERMANENT SHOP</h2>
+                    <div class="boss-tokens">
+                        Tokens: <span id="gems-display">0</span> 💎
+                    </div>
+                </div>
+                <div class="shop-upgrades">
+                    <div class="perm-upgrade">
+                        <div class="p-info">
+                            <span class="p-label">Perm. Damage</span>
+                            <span class="p-level" id="p-level-damage">Lvl 0</span>
+                        </div>
+                        <div class="p-bonus" id="p-bonus-damage">
+                            Bonus: 0% → 1%
+                        </div>
+                        <button class="p-upgrade-btn" id="p-upgrade-damage">
+                            Cost: 1💎
+                        </button>
+                    </div>
+                    <div class="perm-upgrade">
+                        <div class="p-info">
+                            <span class="p-label">Perm. Range</span>
+                            <span class="p-level" id="p-level-range">Lvl 0</span>
+                        </div>
+                        <div class="p-bonus" id="p-bonus-range">
+                            Bonus: 0% → 1%
+                        </div>
+                        <button class="p-upgrade-btn" id="p-upgrade-range">
+                            Cost: 1💎
+                        </button>
+                    </div>
+                    <div class="perm-upgrade">
+                        <div class="p-info">
+                            <span class="p-label">Perm. Firerate</span>
+                            <span class="p-level" id="p-level-speed">Lvl 0</span>
+                        </div>
+                        <div class="p-bonus" id="p-bonus-speed">
+                            Bonus: 0% → 1%
+                        </div>
+                        <button class="p-upgrade-btn" id="p-upgrade-speed">
+                            Cost: 1💎
+                        </button>
+                    </div>
+                    <div class="perm-upgrade">
+                        <div class="p-info">
+                            <span class="p-label">Perm. Money/Kill</span>
+                            <span class="p-level" id="p-level-money">Lvl 0</span>
+                        </div>
+                        <div class="p-bonus" id="p-bonus-money">
+                            Bonus: +0$ → +1$
+                        </div>
+                        <button class="p-upgrade-btn" id="p-upgrade-money">
+                            Cost: 1💎
+                        </button>
+                    </div>
+                    <div class="perm-upgrade">
+                        <div class="p-info">
+                            <span class="p-label">Perm. Discount</span>
+                            <span class="p-level" id="p-level-discount">Lvl 0</span>
+                        </div>
+                        <div class="p-bonus" id="p-bonus-discount">
+                            Bonus: 0% → 1%
+                        </div>
+                        <button class="p-upgrade-btn" id="p-upgrade-discount">
+                            Cost: 1💎
+                        </button>
+                    </div>
+                </div>
+                <button id="close-shop">CLOSE</button>
+            </div>
+        </div>
+
+        <div id="settings-modal" class="hidden">
+            <div class="settings-content">
+                <div class="settings-header">
+                    <h2>SETTINGS</h2>
+                </div>
+                <div class="settings-options">
+                    <div class="setting-row">
+                        <span class="setting-label">Music</span>
+                        <button id="toggle-music-setting" class="setting-toggle">ON</button>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label">Background Effects</span>
+                        <button id="toggle-bg-setting" class="setting-toggle">ON</button>
+                    </div>
+
+                    <div class="setting-row"
+                        style="margin-top: 10px; border: none; background: transparent; padding: 0;">
+                        <button id="reset-perms-btn">RESET PERMANENT PROGRESS (WIPE SAVE)</button>
+                    </div>
+                </div>
+                <button id="close-settings">CLOSE</button>
+            </div>
+        </div>
+
+        <!-- Hidden stats/legacy elements to keep JS happy -->
+        <div style="display: none;">
+            <span id="kills-display">0</span>
+        </div>
+    </div>
+    <script src="TDS.js"></script>
+</body>
+
+</html>
