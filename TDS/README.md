@@ -1,1 +1,0 @@
-je moje vlastní webová videohra inspirovaná mobilní hrou The Tower.
